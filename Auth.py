@@ -7,16 +7,7 @@ import random
 import datetime
 import time
 from Helpers import HLEmail
-import smtplib, ssl
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 import html2text
-
-#Define settings for email SMTP server
-SSL_PORT = 465
-SMTP_SERVER = "smtp.gmail.com"
-administrative_email = "administrative_email@oursite.com"
-password = "your_email's_password"
 
 
 #Define variables for generating random secret key
@@ -229,7 +220,7 @@ class Auth:
 
         password_reset_html = password_reset_html %( users[0]["firstname"], users[0]["lastname"], 'http://' + self.servername + '/password_reset/' + token )
 
-
+        #Send the email
         HLEmail.send_html_email(users[0]["email"], password_reset_html)
 
         return "success"
