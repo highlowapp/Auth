@@ -13,7 +13,7 @@ RUN pip install -r requirements.txt
 RUN git clone https://github.com/highlowapp/HelperFunctions Helpers
 
 #Install requirements for helper functions
-RUN pip install -r HelperFunctions/requirements.txt
+RUN pip install -r Helpers/requirements.txt
 
 ENTRYPOINT ["python"]
 CMD ["api.py"]
