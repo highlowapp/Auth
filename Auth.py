@@ -6,6 +6,7 @@ import jwt
 import random
 import datetime
 import time
+from Helpers import HLEmail
 import smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -228,35 +229,8 @@ class Auth:
 
         password_reset_html = password_reset_html %( users[0]["firstname"], users[0]["lastname"], 'http://' + self.servername + '/password_reset/' + token )
 
-        #Create a plaintext version of the HTML email
-        password_reset_plaintext = html2text.html2text( password_reset_html )
 
-        #Create the MIMETexts for the password reset
-        email_message = MIMEMultipart("alternative")
-
-        email_message_html = MIMEText( password_reset_html, 'html' )
-        email_message_plaintext = MIMEText( password_reset_plaintext, 'plain')
-
-        #Define email headers
-        email_message["Subject"] = "High/Low Password Reset Confirmation"
-        email_message["From"] = administrative_email
-        email_message["To"] = email
-
-        #Attach plaintext and HTML to message
-        email_message.attach(email_message_plaintext)
-        email_message.attach(email_message_html) 
-
-        #Create a SSL context
-        SSL_context = ssl.create_default_context()
-
-        #Connect to an email server and send an email
-        with smtplib.SMTP_SSL(SMTP_SERVER, SSL_PORT, context=SSL_context) as email_server:
-
-            #Login with the email
-            email_server.login(administrative_email, password)
-
-            #Send the email!
-            email_server.sendmail( administrative_email, email, email_message.as_string() )
+        HLEmail.send_html_email(users[0]["email"], password_reset_html)
 
         return "success"
 
