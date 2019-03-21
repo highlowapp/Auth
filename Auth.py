@@ -7,7 +7,6 @@ import random
 import datetime
 import time
 from Helpers import HLEmail
-import html2text
 
 
 #Define variables for generating random secret key
