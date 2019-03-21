@@ -99,6 +99,4 @@ def forgot_password():
 
 #Run the app
 if __name__ == '__main__':
-    #Port defaults to 5000, but binds to Heroku's port for production
-    port = int(os.environ.get('POST', 5000))
-    app.run(debug=False, host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0')
