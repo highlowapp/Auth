@@ -71,7 +71,7 @@ class Auth:
         
 
         #Check for email duplicates
-        possible_email_duplicates = cursor.execute("SELECT uid FROM users WHERE email='" + email + "';")
+        cursor.execute("SELECT uid FROM users WHERE email='" + email + "';")
 
         if len( cursor.fetchall() ) > 0:
 
@@ -102,7 +102,7 @@ class Auth:
             hashed_password = bcrypt.hashpw(password, bcrypt.gensalt())
 
             #Insert into the database
-            cursor.execute("INSERT INTO users(uid, firstname, lastname, email, password) VALUES('" + uid + "', '" + firstname + "', '" + lastname + "', '" + email + "', '" + password + "');")
+            cursor.execute("INSERT INTO users(uid, firstname, lastname, email, password) VALUES('" + uid + "', '" + firstname + "', '" + lastname + "', '" + email + "', '" + hashed_password + "');")
 
             #Commit and close
             conn.commit()
@@ -133,16 +133,16 @@ class Auth:
         error = ""
 
         #Does a user exist with that email?
-        user = cursor.execute("SELECT uid, password FROM users WHERE email='" + email + "';")
+        cursor.execute("SELECT uid, password FROM users WHERE email='" + email + "';")
 
-        if  len( user.fetchall() ) == 0:
+        if  len( cursor.fetchall() ) == 0:
             error = "user-no-exist"
 
 
         else:
 
             #Get the user
-            existingUser = user.fetchone()
+            existingUser = cursor.fetchone()
 
             #If the password is correct...
             if bcrypt.checkpw(password, existingUser["password"]):
@@ -206,7 +206,8 @@ class Auth:
         cursor = conn.cursor()
 
         #Get the relevant user(s)
-        users = cursor.execute("SELECT firstname, lastname, uid FROM users WHERE email='" + email + "';").fetchall()
+        cursor.execute("SELECT firstname, lastname, uid FROM users WHERE email='" + email + "';")
+        users = cursor.fetchall()
 
         #Commit and close the connection
         conn.commit()
@@ -249,7 +250,7 @@ class Auth:
         SSL_context = ssl.create_default_context()
 
         #Connect to an email server and send an email
-        with smtplib.SMTP_SSL(SMTP_SERVER, port, context=context) as email_server:
+        with smtplib.SMTP_SSL(SMTP_SERVER, SSL_PORT, context=SSL_context) as email_server:
 
             #Login with the email
             email_server.login(administrative_email, password)
