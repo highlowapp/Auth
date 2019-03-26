@@ -92,6 +92,23 @@ def forgot_password():
     return auth.send_password_reset_email( request.form["email"] )
 
 
+#Verify token
+@app.route("/verify_token", methods=["GET"])
+def verify_token():
+    #Retrieve the token
+    token = request.args["token"]
+
+    #Attempt to validate the token
+    result = auth.validate_token(token)
+
+    #If token is invalid...
+    if result == "ERROR-INVALID-TOKEN":
+        #Return an error
+        return "{ 'error': '" + result + "' }"
+
+    #Otherwise, return the UID
+    return "{ 'uid': '" + result + "' }"
+
 
 
 
@@ -99,4 +116,4 @@ def forgot_password():
 
 #Run the app
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', port="80")
