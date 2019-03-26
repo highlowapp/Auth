@@ -72,8 +72,8 @@ def sign_in():
 
 
 #Reset password
-@app.route("/password_reset/<path:reset_id>", methods=["GET", "POST"])
-def password_reset():
+@app.route("/password_reset/<string:reset_id>", methods=["GET", "POST"])
+def password_reset(reset_id):
     
     if request.method == "POST":
         
@@ -93,10 +93,10 @@ def forgot_password():
 
 
 #Verify token
-@app.route("/verify_token", methods=["GET"])
+@app.route("/verify_token", methods=["GET", "POST"])
 def verify_token():
     #Retrieve the token
-    token = request.args["token"]
+    token = request.headers["Authorization"].replace("Bearer ", "")
 
     #Attempt to validate the token
     result = auth.validate_token(token)
