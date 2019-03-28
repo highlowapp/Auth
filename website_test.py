@@ -17,45 +17,21 @@ def home():
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
 
-  error = None
-  if request.method == 'POST':
-    if request.form['email'] != 'admin@gmail.com' or request.form['password'] != 'admin':
-        error = 'Invalid Credentials. Please try again.'
-    else:
-        return redirect(url_for('HighLowInput'))
-  return render_template('signin.html', error=error)
+    if request.method == 'POST':
+        return redirect(url_for('home'))
+    return render_template('signin.html')  # render a template
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-  error = None
-  #We can add any needed errors
-  if request.method == 'POST':
-    if request.form['confirmpassword'] != request.form['password']:
-        error = 'Your password doesn\'t match. Please try again.'
-    else:
-      return redirect(url_for('HighLowInput'))
-      sign_up.sign_up(firstname=request.form['firstname'], lastname=request.form['lastname'], email=request.form['email'], password=request.form['password'], confirmpassword=request.form['confirmpassword'])
-
-  return render_template('signup.html', error=error)  # render a template
- 
+  return render_template('signup.html', methods=['GET', 'POST'])  # render a template
+ # if request.method == 'POST':
+  sign_up.sign_up(firstname=request.form['firstname'], lastname=request.form['lastname'], email=request.form['email'], password=request.form['password'], confirmpassword=request.form['confirmpassword'])
 
 @app.route('/resetPassword', methods=['GET', 'POST'])
 def resetPassword():
   return render_template('resetPassword.html', methods=['GET', 'POST'])  # render a template
 
-@app.route('/input', methods=['GET', 'POST'])
-def HighLowInput():
-  error = None
-  if request.method == 'POST':
-    return redirect(url_for('delay'))
-    #return 'High: {} <br> Low: {}'.format(request.form['high'], request.form['low'])
-  return render_template('HighLow_Input.html', error=error)
 
-
-@app.route('/display', methods=['GET', 'POST'])
-def display():
-  if request.method == 'POST':
-    return 'High: {} <br> Low: {}'.format(request.form['high'], request.form['low']) 
 #start the server with the 'run()' method
 if __name__ == '__main__':
   app.run(debug=True)
