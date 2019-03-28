@@ -14,6 +14,7 @@ auth = Auth("auth_server_name", host, username, password, database)
 #Create a Flask app instance
 app = Flask(__name__)
 
+
 #Placeholders for HTML
 sign_up_html = ""
 sign_in_html = ""
