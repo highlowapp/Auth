@@ -19,4 +19,6 @@ RUN pip install -r Helpers/requirements.txt
 ENV PORT=80
 
 #Run the app
-CMD gunicorn --bind 0.0.0.0:$PORT wsgi
+#CMD gunicorn --bind 0.0.0.0:$PORT wsgi
+ENTRYPOINT ["python"]
+CMD ["api.py"]

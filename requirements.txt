@@ -6,3 +6,4 @@ bleach
 bcrypt
 PyJWT
 html2text
+requests

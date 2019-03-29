@@ -6,7 +6,7 @@ import jwt
 import random
 import datetime
 import time
-from Helpers import HLEmail
+import requests
 
 
 #Define variables for generating random secret key
@@ -90,17 +90,17 @@ class Auth:
             uid = uuid.uuid1()
 
             #Hash the password
-            hashed_password = bcrypt.hashpw(password, bcrypt.gensalt())
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
             #Insert into the database
-            cursor.execute("INSERT INTO users(uid, firstname, lastname, email, password) VALUES('" + uid + "', '" + firstname + "', '" + lastname + "', '" + email + "', '" + hashed_password + "');")
+            cursor.execute("INSERT INTO users(uid, firstname, lastname, email, password, profileimage, streak) VALUES('" + str(uid) + "', '" + firstname + "', '" + lastname + "', '" + email + "', '" + hashed_password + "', '', 0);")
 
             #Commit and close
             conn.commit()
             conn.close()
 
             #Create and return an auth token
-            token = self.create_token(uid)
+            token = self.create_token(str(uid))
             return token
 
         else:
@@ -125,18 +125,14 @@ class Auth:
 
         #Does a user exist with that email?
         cursor.execute("SELECT uid, password FROM users WHERE email='" + email + "';")
-
-        if  len( cursor.fetchall() ) == 0:
-            error = "user-no-exist"
-
-
-        else:
-
-            #Get the user
-            existingUser = cursor.fetchone()
+        
+        existingUser = cursor.fetchone()
+        
+        
+        if existingUser != None:
 
             #If the password is correct...
-            if bcrypt.checkpw(password, existingUser["password"]):
+            if bcrypt.checkpw(password.encode('utf-8'), existingUser["password"]):
 
                 #The user is authenticated; create and return a token
                 token = self.create_token( existingUser["uid"] )
@@ -147,7 +143,8 @@ class Auth:
             else:
                 #The password is wrong
                 error = "incorrect-email-or-password"
-        
+        else:
+            error = "user-no-exist"
 
         #If the user was not authenticated, return the error
         return error
@@ -197,19 +194,19 @@ class Auth:
         cursor = conn.cursor()
 
         #Get the relevant user(s)
-        cursor.execute("SELECT firstname, lastname, uid FROM users WHERE email='" + email + "';")
-        users = cursor.fetchall()
+        cursor.execute("SELECT firstname, lastname, uid, email FROM users WHERE email='" + email + "';")
+        user = cursor.fetchone()
 
         #Commit and close the connection
         conn.commit()
         conn.close()
 
         #Check and see if any users existed with that email
-        if len(users) == 0:
+        if user == None:
             return "user-no-exist"
 
         #Create a "password reset id" token that expires in a day
-        token = self.create_token( users[0]["uid"], expiration_minutes= 60 * 24 )
+        token = self.create_token( user["uid"], expiration_minutes= 60 * 24 )
 
         ## Fetch the password reset email HTML and insert user information and the link we just generated ##
         password_reset_html = ""
@@ -217,10 +214,14 @@ class Auth:
         with open("passwordResetEmail.html", "r") as file:
             password_reset_html = file.read()
 
-        password_reset_html = password_reset_html %( users[0]["firstname"], users[0]["lastname"], 'http://' + self.servername + '/password_reset/' + token )
+        
+        
+        password_reset_html = password_reset_html.format(user["firstname"], user["lastname"], 'http://main-server:5002/password_reset/' + token)
 
         #Send the email
-        HLEmail.send_html_email(users[0]["email"], password_reset_html)
+        emailRequest = requests.post("http://main-server:5001/send_html_email", data = {'email': user["email"], 'message': password_reset_html}) 
+        
+
 
         return "success"
 
@@ -242,7 +243,7 @@ class Auth:
             return "passwords-no-match"
 
         #If the passwords matched and the token is valid, go ahead and reset the password
-        hashed_password = bcrypt.hashpw(password, bcrypt.gensalt())
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
         #Connect to MySQL
         conn = pymysql.connect(self.host, self.username, self.password, self.database, cursorclass=pymysql.cursors.DictCursor)

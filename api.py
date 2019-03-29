@@ -3,10 +3,10 @@ from flask import Flask, session, request
 from Auth import Auth
 
 #MySQL server configuration
-host = "localhost"
-username = "username"
-password = "password"
-database = "database"
+host = "hostname"
+username = "highlow"
+password = "highlow"
+database = "highlow"
 
 #Create an Auth instance
 auth = Auth("auth_server_name", host, username, password, database)
@@ -117,4 +117,4 @@ def verify_token():
 
 #Run the app
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port="80")
+    app.run(host='0.0.0.0', port="80", debug=True)
