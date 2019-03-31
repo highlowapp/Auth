@@ -3,7 +3,7 @@ from flask import Flask, session, request
 from Auth import Auth
 
 #MySQL server configuration
-host = "hostname"
+host = "192.168.1.250"
 username = "highlow"
 password = "highlow"
 database = "highlow"
@@ -105,10 +105,10 @@ def verify_token():
     #If token is invalid...
     if result == "ERROR-INVALID-TOKEN":
         #Return an error
-        return "{ 'error': '" + result + "' }"
+        return '{ "error": "' + result + '" }'
 
     #Otherwise, return the UID
-    return "{ 'uid': '" + result + "' }"
+    return '{ "uid": "' + result + '" }'
 
 
 
