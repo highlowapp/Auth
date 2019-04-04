@@ -8,13 +8,14 @@ import datetime
 import time
 import requests
 
+#The email administrative password (probably will be loaded from a config file in the future)
+email_admin_password = "email_admin_password"
 
-#Define variables for generating random secret key
-#TODO: Consider using bcrypt.gensalt() to generate the key?
-#TODO: Consider putting the secret key inside a file so it isn't regenerated every time we start the Auth instance
-random_generator = random.SystemRandom()
-allowable_characters = "a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 1 2 3 4 5 6 7 8 9 0 ! @ # $ % ^ & *".split(" ")
 
+#Load secret key from file
+SECRET_KEY = ""
+with open("ENCRYPTION_KEY.txt", 'r') as file:
+    SECRET_KEY = file.read() 
 
 class Auth:
 
@@ -25,11 +26,7 @@ class Auth:
         self.password = password
         self.database = database
         self.blacklisted_tokens = []
-        self.SECRET_KEY = ""
-
-        #Generate a random string for the secret key
-        for i in range( 15 ):
-            self.SECRET_KEY += random.choice(allowable_characters)
+        self.SECRET_KEY = SECRET_KEY
 
     #Sign up
     def sign_up(self, firstname, lastname, email, password, confirmpassword):
@@ -219,7 +216,7 @@ class Auth:
         password_reset_html = password_reset_html.format(user["firstname"], user["lastname"], 'http://main-server:5002/password_reset/' + token)
 
         #Send the email
-        emailRequest = requests.post("http://main-server:5001/send_html_email", data = {'email': user["email"], 'message': password_reset_html}) 
+        emailRequest = requests.post("http://main-server:5001/send_html_email", data = {'email': user["email"], 'message': password_reset_html, 'password': email_admin_password}) 
         
 
 
