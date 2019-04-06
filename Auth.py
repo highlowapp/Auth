@@ -7,14 +7,15 @@ import random
 import datetime
 import time
 import requests
+import Helpers
 
-#The email administrative password (probably will be loaded from a config file in the future)
-email_admin_password = "email_admin_password"
+#Email Config
+email_config = Helpers.read_json_from_file("config/email_config.json")
 
 
 #Load secret key from file
 SECRET_KEY = ""
-with open("ENCRYPTION_KEY.txt", 'r') as file:
+with open("config/encryption_key.txt", 'r') as file:
     SECRET_KEY = file.read() 
 
 class Auth:
@@ -216,7 +217,7 @@ class Auth:
         password_reset_html = password_reset_html.format(user["firstname"], user["lastname"], 'http://main-server:5002/password_reset/' + token)
 
         #Send the email
-        emailRequest = requests.post("http://main-server:5001/send_html_email", data = {'email': user["email"], 'message': password_reset_html, 'password': email_admin_password}) 
+        emailRequest = requests.post("http://main-server:5001/send_html_email", data = {'email': user["email"], 'message': password_reset_html, 'password': email_config["password"]}) 
         
 
 
