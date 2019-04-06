@@ -217,7 +217,7 @@ class Auth:
         password_reset_html = password_reset_html.format(user["firstname"], user["lastname"], 'http://main-server:5002/password_reset/' + token)
 
         #Send the email
-        emailRequest = requests.post("http://main-server:5001/send_html_email", data = {'email': user["email"], 'message': password_reset_html, 'password': email_config["password"]}) 
+        requests.post("http://main-server:5001/send_html_email", data = {'email': user["email"], 'message': password_reset_html, 'password': email_config["password"]}) 
         
 
 
