@@ -10,7 +10,7 @@ WORKDIR /app
 RUN pip install -r requirements.txt
 
 #Install helper functions from Github repo
-RUN git clone https://github.com/highlowapp/HelperFunctions Helpers
+RUN git clone https://github.com/highlowapp/Helpers Helpers
 
 #Install requirements for helper functions
 RUN pip install -r Helpers/requirements.txt
