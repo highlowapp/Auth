@@ -1,15 +1,13 @@
 import os
 from flask import Flask, session, request
 from Auth import Auth
+import Helpers
 
 #MySQL server configuration
-host = "192.168.1.250"
-username = "highlow"
-password = "highlow"
-database = "highlow"
+mysql_config = Helpers.read_json_from_file("config/mysql_config.json")
 
 #Create an Auth instance
-auth = Auth("auth_server_name", host, username, password, database)
+auth = Auth("auth_server_name", mysql_config["host"], mysql_config["username"], mysql_config["password"], mysql_config["database"])
 
 #Create a Flask app instance
 app = Flask(__name__)
