@@ -40,7 +40,7 @@ class Auth:
         #Get and sanitize the input
         firstname = bleach.clean(firstname)
         lastname = bleach.clean(lastname)
-        email = bleach.clean(email)
+        email = bleach.clean( email.lower() )
         password = bleach.clean(password)
         confirmpassword = bleach.clean(confirmpassword)
 
@@ -115,7 +115,7 @@ class Auth:
         cursor = conn.cursor()
 
         #Get and sanitize the input
-        email = bleach.clean(email)
+        email = bleach.clean(email.lower() )
         password = bleach.clean(password)
 
         #Keep track of errors
