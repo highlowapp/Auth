@@ -12,6 +12,8 @@ import Helpers
 #Email Config
 email_config = Helpers.read_json_from_file("config/email_config.json")
 
+#Email service
+email_service = Helpers.service("email")
 
 #Load secret key from file
 SECRET_KEY = ""
@@ -40,7 +42,7 @@ class Auth:
         #Get and sanitize the input
         firstname = bleach.clean(firstname)
         lastname = bleach.clean(lastname)
-        email = bleach.clean(email)
+        email = bleach.clean( email.lower() )
         password = bleach.clean(password)
         confirmpassword = bleach.clean(confirmpassword)
 
@@ -115,7 +117,7 @@ class Auth:
         cursor = conn.cursor()
 
         #Get and sanitize the input
-        email = bleach.clean(email)
+        email = bleach.clean(email.lower() )
         password = bleach.clean(password)
 
         #Keep track of errors
@@ -214,10 +216,10 @@ class Auth:
 
         
         
-        password_reset_html = password_reset_html.format(user["firstname"], user["lastname"], 'http://main-server:5002/password_reset/' + token)
+        password_reset_html = password_reset_html.format(user["firstname"], user["lastname"], 'http://' + self.servername + '/password_reset/' + token)
 
         #Send the email
-        requests.post("http://main-server:5001/send_html_email", data = {'email': user["email"], 'message': password_reset_html, 'password': email_config["password"]}) 
+        requests.post("http://{}/send_html_email".format(email_service) , data = {'email': user["email"], 'message': password_reset_html, 'password': email_config["password"]}) 
         
 
 
