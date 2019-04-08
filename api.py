@@ -6,8 +6,11 @@ import Helpers
 #MySQL server configuration
 mysql_config = Helpers.read_json_from_file("config/mysql_config.json")
 
+#Auth service
+auth_service = Helpers.service("auth")
+
 #Create an Auth instance
-auth = Auth("auth_server_name", mysql_config["host"], mysql_config["username"], mysql_config["password"], mysql_config["database"])
+auth = Auth(auth_service, mysql_config["host"], mysql_config["username"], mysql_config["password"], mysql_config["database"])
 
 #Create a Flask app instance
 app = Flask(__name__)
