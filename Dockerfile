@@ -13,12 +13,10 @@ RUN pip install -r requirements.txt
 RUN git clone https://github.com/highlowapp/Helpers Helpers
 
 #Install requirements for helper functions
-RUN pip install -r Helpers/requirements.txt
+RUN cd Helpers && pip install -r requirements.txt
 
 #Set the $PORT environment variable
 ENV PORT=80
 
 #Run the app
-#CMD gunicorn --bind 0.0.0.0:$PORT wsgi
-ENTRYPOINT ["python"]
-CMD ["api.py"]
+CMD gunicorn -w 4 -b 0.0.0.0:$PORT wsgi
