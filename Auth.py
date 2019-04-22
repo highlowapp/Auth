@@ -28,8 +28,28 @@ class Auth:
         self.username = username
         self.password = password
         self.database = database
+
+        #Blacklisted tokens cache
         self.blacklisted_tokens = []
+
         self.SECRET_KEY = SECRET_KEY
+
+        ## Load blacklisted tokens ##
+
+        #Connect to the MySQL server
+        conn = pymysql.connect(self.host, self.username, self.password, self.database, cursorclass=pymysql.cursors.DictCursor)
+        cursor = conn.cursor()
+
+        #Refresh blacklisted_tokens cache
+        cursor.execute("SELECT token FROM blacklisted_tokens;")
+
+        token_list = cursor.fetchall()
+
+        for i in range(len(token_list)):
+            self.blacklisted_tokens.append(token_list[i]["token"])
+
+        conn.commit()
+        conn.close()
 
     #Sign up
     def sign_up(self, firstname, lastname, email, password, confirmpassword):
@@ -176,7 +196,7 @@ class Auth:
 
         current_timestamp = time.mktime( datetime.datetime.now().timetuple() )
 
-        if payload["exp"] > current_timestamp:
+        if payload["exp"] > current_timestamp and token not in self.blacklisted_tokens:
             return payload["sub"]
 
         return "ERROR-INVALID-TOKEN"
@@ -258,3 +278,25 @@ class Auth:
 
         #Return success message
         return "success"
+
+    def blacklist_token(self, token):
+        #Connect to the MySQL server
+        conn = pymysql.connect(self.host, self.username, self.password, self.database, cursorclass=pymysql.cursors.DictCursor)
+        cursor = conn.cursor()
+
+        token = bleach.clean(token)
+
+        cursor.execute("INSERT INTO blacklisted_tokens(token) VALUES('{}');".format(token))
+
+        #Refresh blacklisted_tokens cache
+        cursor.execute("SELECT token FROM blacklisted_tokens;")
+
+        token_list = cursor.fetchall()
+
+        self.blacklisted_tokens = []
+
+        for i in range(len(token_list)):
+            self.blacklisted_tokens.append(token_list[i]["token"])
+
+        conn.commit()
+        conn.close()
