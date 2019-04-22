@@ -112,6 +112,10 @@ def verify_token():
     return '{ "uid": "' + result + '" }'
 
 
+#Blacklist token
+@app.route("/blacklist/<token:string>", methods=["GET", "POST"])
+def blacklist_token(token):
+    auth.blacklist_token(token)
 
 
 
