@@ -113,7 +113,7 @@ def verify_token():
 
 
 #Blacklist token
-@app.route("/blacklist/<token:string>", methods=["GET", "POST"])
+@app.route("/blacklist/<string:token>", methods=["GET", "POST"])
 def blacklist_token(token):
     auth.blacklist_token(token)
 
