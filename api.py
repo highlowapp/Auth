@@ -116,7 +116,7 @@ def verify_token():
 @app.route("/blacklist/<string:token>", methods=["GET", "POST"])
 def blacklist_token(token):
     auth.blacklist_token(token)
-
+    return '{"status":"success"}'
 
 
 
