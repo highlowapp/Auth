@@ -28,7 +28,10 @@ class Auth:
         self.username = username
         self.password = password
         self.database = database
-
+        
+        #Run unit tests
+        self.run_tests()
+        
         #Blacklisted tokens cache
         self.blacklisted_tokens = []
 
@@ -300,3 +303,62 @@ class Auth:
 
         conn.commit()
         conn.close()
+        
+      #Run all the tests
+    def run_tests(self):
+        def sign_up_test(self):
+            error_messages = ["empty-first-name", "empty-last-name", "empty-email", 
+                              "email-already-taken", "invalid-email", 
+                              "password-too-short", "passwords-no-match"]
+            result = Auth.sign_up(self, firstname="Brayden", lastname="Morris", email="test3@gmail.com", password="longpassword", confirmpassword="longpassword")
+
+            if result in error_messages:
+                print("Something went wrong in the sign_up_test, the error was: " + result)
+            else:
+                print("Everything went fine in the sign_up_test")
+        #These functions run the individual tests
+        sign_up_test(self)
+
+        def sign_in_test(self):
+            error_messages = ["user-no-exist", "incorrect-email-or-password"]
+
+            result = Auth.sign_in(self, email="test3@gmail.com", password="longpassword")
+
+            if result in error_messages:
+                print("Something went wrong in the sign_in_test, the error was: " + result)
+            else: 
+                print("Everything went fine in the sign_in_test")
+        sign_in_test(self)
+
+        def validate_token_test(self):
+            error_message = ["ERROR_INVALID_TOKEN"]
+
+            result = Auth.validate_token(self, token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJoaWdobG93IiwiaWF0IjoxNTU2MTUxMzI0LjAsInN1YiI6IjM3ZTIxZjI2LTY2ZWYtMTFlOS04YTliLTAyNDJhYzExMDAwMiIsImV4cCI6MTU3MTkxOTMyNC4wfQ.s2payesaWIfMMNwF0ofNHsxSyGACFRVhj3gh4C8AQp8")
+
+            if len( result.split(".") ) == 3:
+                if result not in error_message:
+                    print("Everything went fine in the validate_token_test")  
+                else:
+                    print("Something went wrong in the validate_token_test, the error was: " + result)    
+        validate_token_test(self)
+
+        def send_password_reset_email_test(self):
+            result = Auth.send_password_reset_email(self, email="test@gmail.com")
+
+            if result == "success":
+                print("send_password_reset_email was a success")
+            else:
+                print("send_password_reset_email was not a success, the error is: " + result)
+        send_password_reset_email_test(self)
+
+        def reset_password_test(self):
+            result = Auth.reset_password(self, token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJoaWdobG93IiwiaWF0IjoxNTU2MTUxMzI0LjAsInN1YiI6IjM3ZTIxZjI2LTY2ZWYtMTFlOS04YTliLTAyNDJhYzExMDAwMiIsImV4cCI6MTU3MTkxOTMyNC4wfQ.s2payesaWIfMMNwF0ofNHsxSyGACFRVhj3gh4C8AQp8",
+                                        password="longpassword", confirmpassword="longpassword")
+            
+            error_messages = ["ERROR-INVALID_TOKEN", "passwords-no-match"] 
+            
+            if result in error_messages:
+                print("Something went wrong in the reset_password_test, the error is " + result)
+            elif result == "success":
+                print("Everything went fine in the reset_password_test")
+        reset_password_test(self)
