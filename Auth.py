@@ -28,14 +28,15 @@ class Auth:
         self.username = username
         self.password = password
         self.database = database
-        
-        #Run the tests
-        self.run_tests()
-        
+
         #Blacklisted tokens cache
         self.blacklisted_tokens = []
 
         self.SECRET_KEY = SECRET_KEY
+
+
+        #Run the tests
+        self.run_tests()
 
         ## Load blacklisted tokens ##
 
@@ -114,9 +115,9 @@ class Auth:
 
             #Hash the password
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-
+            
             #Insert into the database
-            cursor.execute("INSERT INTO users(uid, firstname, lastname, email, password, profileimage, streak) VALUES('" + str(uid) + "', '" + firstname + "', '" + lastname + "', '" + email + "', '" + hashed_password + "', '', 0);")
+            cursor.execute("INSERT INTO users(uid, firstname, lastname, email, password, profileimage, streak) VALUES('" + str(uid) + "', '" + firstname + "', '" + lastname + "', '" + email + "', '" + hashed_password.decode('utf-8') + "', '', 0);")
 
             #Commit and close
             conn.commit()
@@ -155,7 +156,7 @@ class Auth:
         if existingUser != None:
 
             #If the password is correct...
-            if bcrypt.checkpw(password.encode('utf-8'), existingUser["password"]):
+            if bcrypt.checkpw(password.encode('utf-8'), existingUser["password"].encode('utf-8')):
 
                 #The user is authenticated; create and return a token
                 token = self.create_token( existingUser["uid"] )
@@ -189,6 +190,8 @@ class Auth:
         }
 
         token = jwt.encode(token_payload, self.SECRET_KEY, algorithm="HS256")
+
+        token = token.decode('utf-8')
 
         return token
 
@@ -273,7 +276,7 @@ class Auth:
         cursor = conn.cursor()
 
         #Update the password
-        cursor.execute("UPDATE users SET password = '" + hashed_password + "' WHERE uid='" + uid + "';")
+        cursor.execute("UPDATE users SET password = '" + hashed_password.decode('utf-8') + "' WHERE uid='" + uid + "';")
 
         #Commit and close the connection
         conn.commit()
@@ -343,7 +346,7 @@ class Auth:
 
         result = self.validate_token( token )
 
-        if len( result.split(".") ) == 3:
+        if result != "ERROR-INVALID_TOKEN":
             print("Everything went fine in the validate_token_test")  
         else:
             print("Something went wrong in the validate_token_test, the error was: " + result)    
