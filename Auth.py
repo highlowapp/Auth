@@ -28,7 +28,10 @@ class Auth:
         self.username = username
         self.password = password
         self.database = database
-
+        
+        #Run the tests
+        self.run_tests()
+        
         #Blacklisted tokens cache
         self.blacklisted_tokens = []
 
@@ -300,3 +303,77 @@ class Auth:
 
         conn.commit()
         conn.close()
+        
+    def sign_up_test(self):
+        #Make sure the user is already deleted
+        conn = pymysql.connect(self.host, self.username, self.password, self.database, cursorclass=pymysql.cursors.DictCursor)
+        cursor = conn.cursor()
+
+        cursor.execute("DELETE FROM users WHERE email='test@example.com';")
+
+        conn.commit()
+        conn.close()
+            
+        error_messages = ["empty-first-name", "empty-last-name", "empty-email", 
+                              "email-already-taken", "invalid-email", 
+                              "password-too-short", "passwords-no-match"]
+        result = self.sign_up( "Test", "Test", "test@example.com", "longpassword", "longpassword")
+
+        if result in error_messages:
+            print("Something went wrong in the sign_up_test, the error was: " + result)
+        else:
+            print("Everything went fine in the sign_up_test")
+        
+        
+
+    def sign_in_test(self):
+        error_messages = ["user-no-exist", "incorrect-email-or-password"]
+
+        result = self.sign_in( "test@example.com", "longpassword")
+
+        if result in error_messages:
+            print("Something went wrong in the sign_in_test, the error was: " + result)
+        else: 
+            print("Everything went fine in the sign_in_test")
+        
+
+    def validate_token_test(self):
+
+        token = self.sign_in( "test@example.com", "longpassword" )
+
+        result = self.validate_token( token )
+
+        if len( result.split(".") ) == 3:
+            print("Everything went fine in the validate_token_test")  
+        else:
+            print("Something went wrong in the validate_token_test, the error was: " + result)    
+        
+
+    def send_password_reset_email_test(self):
+        result = self.send_password_reset_email("test@example.com")
+
+        if result == "success":
+            print("send_password_reset_email was a success")
+        else:
+            print("send_password_reset_email was not a success, the error is: " + result)
+        
+
+    def reset_password_test(self):
+        token = self.sign_in("test@example.com", "longpassword")
+
+        result = self.reset_password( token , "longpassword", "longpassword")
+            
+        error_messages = ["ERROR-INVALID_TOKEN", "passwords-no-match"] 
+            
+        if result in error_messages:
+            print("Something went wrong in the reset_password_test, the error is " + result)
+        elif result == "success":
+            print("Everything went fine in the reset_password_test")
+        
+
+    def run_tests(self):
+        self.sign_up_test()
+        self.sign_in_test()
+        self.validate_token_test()
+        self.send_password_reset_email_test()
+        self.reset_password_test()
