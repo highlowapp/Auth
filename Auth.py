@@ -30,11 +30,7 @@ class Auth:
         self.database = database
         
         #Run the tests
-        self.sign_up_test()
-        self.sign_in_test()
-        self.validate_token_test()
-        self.send_password_reset_email_test()
-        self.reset_password_test()
+        self.run_tests()
         
         #Blacklisted tokens cache
         self.blacklisted_tokens = []
@@ -313,7 +309,7 @@ class Auth:
         conn = pymysql.connect(self.host, self.username, self.password, self.database, cursorclass=pymysql.cursors.DictCursor)
         cursor = conn.cursor()
 
-        cursor.execute("DELETE FROM users WHERE (firstname = 'Test' AND lastname = 'Test' );")
+        cursor.execute("DELETE FROM users WHERE email='test@example.com';")
 
         conn.commit()
         conn.close()
@@ -321,19 +317,19 @@ class Auth:
         error_messages = ["empty-first-name", "empty-last-name", "empty-email", 
                               "email-already-taken", "invalid-email", 
                               "password-too-short", "passwords-no-match"]
-        result = self.sign_up( firstname="Test", lastname="Test", email="test@gmail.com", password="longpassword", confirmpassword="longpassword")
+        result = self.sign_up( "Test", "Test", "test@example.com", "longpassword", "longpassword")
 
         if result in error_messages:
             print("Something went wrong in the sign_up_test, the error was: " + result)
         else:
             print("Everything went fine in the sign_up_test")
-        #These functions run the individual tests
+        
         
 
     def sign_in_test(self):
         error_messages = ["user-no-exist", "incorrect-email-or-password"]
 
-        result = self.sign_in( email="test@gmail.com", password="longpassword")
+        result = self.sign_in( "test@example.com", "longpassword")
 
         if result in error_messages:
             print("Something went wrong in the sign_in_test, the error was: " + result)
@@ -342,19 +338,19 @@ class Auth:
         
 
     def validate_token_test(self):
-        error_message = ["ERROR_INVALID_TOKEN"]
 
-        result = self.validate_token( token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJoaWdobG93IiwiaWF0IjoxNTU2MTUxMzI0LjAsInN1YiI6IjM3ZTIxZjI2LTY2ZWYtMTFlOS04YTliLTAyNDJhYzExMDAwMiIsImV4cCI6MTU3MTkxOTMyNC4wfQ.s2payesaWIfMMNwF0ofNHsxSyGACFRVhj3gh4C8AQp8")
+        token = self.sign_in( "test@example.com", "longpassword" )
+
+        result = self.validate_token( token )
 
         if len( result.split(".") ) == 3:
-            if result not in error_message:
-                print("Everything went fine in the validate_token_test")  
-            else:
-                print("Something went wrong in the validate_token_test, the error was: " + result)    
+            print("Everything went fine in the validate_token_test")  
+        else:
+            print("Something went wrong in the validate_token_test, the error was: " + result)    
         
 
     def send_password_reset_email_test(self):
-        result = self.send_password_reset_email( email="test@gmail.com")
+        result = self.send_password_reset_email("test@example.com")
 
         if result == "success":
             print("send_password_reset_email was a success")
@@ -363,8 +359,9 @@ class Auth:
         
 
     def reset_password_test(self):
-        result = self.reset_password( token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJoaWdobG93IiwiaWF0IjoxNTU2MTUxMzI0LjAsInN1YiI6IjM3ZTIxZjI2LTY2ZWYtMTFlOS04YTliLTAyNDJhYzExMDAwMiIsImV4cCI6MTU3MTkxOTMyNC4wfQ.s2payesaWIfMMNwF0ofNHsxSyGACFRVhj3gh4C8AQp8",
-                                        password="longpassword", confirmpassword="longpassword")
+        token = self.sign_in("test@example.com", "longpassword")
+
+        result = self.reset_password( token , "longpassword", "longpassword")
             
         error_messages = ["ERROR-INVALID_TOKEN", "passwords-no-match"] 
             
@@ -373,11 +370,10 @@ class Auth:
         elif result == "success":
             print("Everything went fine in the reset_password_test")
         
-        #Remove the user that we previously added
-        conn = pymysql.connect(self.host, self.username, self.password, self.database, cursorclass=pymysql.cursors.DictCursor)
-        cursor = conn.cursor()
-        
-        cursor.execute("DELETE FROM users WHERE (firstname = 'Test' AND lastname = 'Test');")
 
-        conn.commit()
-        conn.close()
+    def run_tests(self):
+        self.sign_up_test()
+        self.sign_in_test()
+        self.validate_token_test()
+        self.send_password_reset_email_test()
+        self.reset_password_test()
