@@ -1,22 +1,8 @@
-#We are going to have to run mysql seperately to see if this works until we can get the bluehost working
-
-FROM ubuntu:17.10
-
-RUN apt-get update -y
-RUN apt-get -y install python-pip python-dev build-essential git libffi-dev
-
+FROM python:rc-stretch
 ADD . /app
 WORKDIR /app
 RUN pip install -r requirements.txt
-
-#Install helper functions from Github repo
-RUN git clone https://github.com/highlowapp/Helpers Helpers
-
-#Install requirements for helper functions
-RUN cd Helpers && pip install -r requirements.txt
-
-#Set the $PORT environment variable
-ENV PORT=80
-
-#Run the app
-CMD gunicorn -w 4 -b 0.0.0.0:$PORT wsgi
+RUN apt -y update && apt -y install git
+RUN git clone https://github.com/highlowapp/Helpers && cd Helpers && pip install -r requirements.txt
+EXPOSE 80
+ENTRYPOINT gunicorn -w 4 -b 0.0.0.0:80 wsgi
